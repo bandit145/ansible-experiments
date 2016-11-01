@@ -11,3 +11,6 @@
 
 - name: echo admin password
   command: echo /var/lib/jenkins/secrets/initialAdminPassword
+  register: echo
+  #print for admin to see and plug into web interface
+- debug: var=echo.stdout_lines
