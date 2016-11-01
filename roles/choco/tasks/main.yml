@@ -1,0 +1,28 @@
+---
+#might use tomcat9 if availble
+- name: set config file location
+  file: path=/home/server/jnuget state=directory
+
+- name: Set NUGET_HOME env var
+  shell: NUGET_HOME IS $NUGET_HOME
+    enviroment:
+      NUGET_HOME:/home/server/jnuget
+    register: shellout
+
+- name: get java 1.8
+  apt: name={{item}} update_cache=yes
+  with_items:
+    - default-jre
+    - tomcat8
+
+- name: deploy WAR file into tomcat 
+  copy: src=jnuget-0.8.2 dest=/etc/tomcat/webapps/
+
+- name: copy tomcat configs
+  copy: src={{item}} dest=/home/server/jnuget/
+  with_items:
+    - jnuget.users.xml
+    - jnuget.config.xml
+
+- name: start and enable tomcat
+  service: name=tomcat8 state=started enabled=yes

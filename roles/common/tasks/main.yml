@@ -1,0 +1,41 @@
+---
+- name: Install python and git
+  apt: name={{ item }} update_cache=yes
+  with_items:
+  - python3-dev
+  - python3-pip
+  - git
+#dual copies otherwise conflicts
+- name: copy ssh auth key
+  copy: src=authorized_keys dest=/home/server/.ssh
+
+- name: copy sshd_config
+  copy: src=sshd_config dest=/etc/ssh
+
+- name: name host
+  hostname: name="{{host_name}}"
+
+- name: install sensu
+  apt: name=sensu update_cache=yes
+
+- name: copy the sensu configs
+  copy: src={{item}} dest=/etc/sensu/conf.d/
+  with_items:
+    - rabbitmq.json
+    - transport.json
+
+- name: copy sensu client template 
+  template: src=client.json dest=/etc/sensu/conf.d
+
+- name: copy ssl certs
+  copy: src={{item}} dest=/etc/sensu/ssl/
+  with_items:
+    - sensu-cert.pem
+    - sensu-key.pem
+- name: start sensu
+  service: name=sensu-client state=started enabled=yes
+
+- name: copy interfaces template
+  copy: src=interfaces dest=/etc/network/interfaces
+
+#Eventually restart networking, probably from deploy script

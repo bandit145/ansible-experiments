@@ -1,0 +1,10 @@
+<options>
+	<storages>
+		<storage class="ru.aristar.jnuget.sources.ClassicPackageSource" indexed="false" storageName="DefaultSource"
+			public="true" canPush="true" canDelete="true">
+			<properties>
+				<property name="foldername" value="${nuget.home}/Packages/"/>
+			</properties>
+		</storage>
+	</storages>
+</options>

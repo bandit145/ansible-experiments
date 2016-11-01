@@ -1,0 +1,13 @@
+{
+  "rabbitmq": {
+    "ssl": {
+      "cert_chain_file": "/etc/sensu/ssl/sensu-cert.pem",
+      "private_key_file": "/etc/sensu/ssl/sensu-key.pem"
+    },
+    "host": "192.168.1.11",
+    "port": 5671,
+    "vhost": "/sensu",
+    "user": "sensu",
+    "password": "notapassword"
+  }
+}

@@ -1,0 +1,13 @@
+---
+- name:  run jenkins repo setup script
+  script: jenkins.sh
+
+- name: install jenkins
+  apt: name=jenkins update_cache=yes
+  ignore_errors: yes
+
+- name: run configure shell script
+  command: sh /var/lib/dpkg/info/jenkins.postinst configure
+
+- name: echo admin password
+  command: echo /var/lib/jenkins/secrets/initialAdminPassword

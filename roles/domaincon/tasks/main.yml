@@ -1,0 +1,12 @@
+---
+- name: copy local
+    win_copy: src=localconfig.mof dest=c:\dsc\
+
+- name: enable local config
+    win_command: command=Set-DscLocalConfigurationManager -Path c:\dsc\localconfig.mof
+
+- name: copy mof
+    win_copy: src=AD.mof dest=c:\dsc\
+
+- name: enable configuration
+  script: dscapply.ps1

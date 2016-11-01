@@ -1,0 +1,10 @@
+---
+#deploys webserver
+- name: deploy webserver
+	remote_user: server
+	become: yes
+  vars:
+    host_name: {{ name }}
+  roles:
+    - common
+    - webserver

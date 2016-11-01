@@ -1,0 +1,12 @@
+---
+- name: deploy jnuget
+  hosts: all
+  remote_user: server
+  become: yes
+  vars:
+    host_name: "{{ name }}"
+    subscription1: ALL
+
+  roles:
+    - common 
+    - choco

@@ -1,0 +1,12 @@
+---
+#deploys base linux server
+- name: deploy
+  hosts: all
+  remote_user: server
+  become: yes
+  vars:
+    host_name: "{{ name }}"
+    subscription1: ALL
+
+  roles:
+    - common 
