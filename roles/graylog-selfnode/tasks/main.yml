@@ -1,43 +1,52 @@
 ---
 - name: copy graylog repo config
-  copy: src=graylog2-1.deb dest=~graylog.deb
+  copy: src=graylog2-1.deb dest=/home/server/graylog.deb
+- name: add elastic search key
+  apt_key: url=https://packages.elastic.co/GPG-KEY-elasticsearch state=present
 
-- name: add graylog and elastisearch repos
-  command: {{item}}
-    with_items:
-      - wget -q0 - https://packages.elastic.co/GPG-KEY-elasticsearch | apt-get add -
-      - echo "deb https://packages.elastic.co/elasticsearch/2.x/debian stable main | tee -a /etc/apt/sources.list.d/elasticsearch-2.x.list"
-      - dpkg -i graylog.deb
+- name: add graylog and elastisearch key
+  command: dpkg -i /home/server/graylog.deb
+  ignore_errors: yes
+
+- name: copy sources.d lists
+  copy: src="{{item}}" dest=/etc/apt/sources.list.d/
+  with_items:
+    - backports.list
+    - elasticsearch-2.x.list
 
 - name: install prereqs
-  apt: name={{item}} update_cache=yes
-    with_items:
-      - apt-transport-https
-      - openjdk-8-jre-headless
-      - uuid-runtime
-      - pwgen
-      - mongodb-server
-      - elasticsearch
-      - graylog-server
+  apt: name="{{item}}" update_cache=yes
+  with_items:
+    - apt-transport-https
+    - openjdk-8-jre-headless
+    - uuid-runtime
+    - pwgen
+    - mongodb-server
+    - elasticsearch
+    - graylog-server
 
 - name: make folders for data from elasticsearch
-  file: path={{item}} state=directory owner=elasticsearch
-    with_items:
-      - /home/elasticsearch/
-      - /home/elasticsearch/data/
-      - /home/elasticsearch/logs/
+  file: path="{{item}}" state=directory owner=elasticsearch
+  with_items:
+    - /home/elasticsearch/
+    - /home/elasticsearch/data/
+    - /home/elasticsearch/logs/
 
-- name: make folders for data from elasticsearch
+- name: make folders for data from graylog
   file: path=/home/graylog/ state=directory owner=graylog
 
 - name: copy elasticsearch config
   copy: src=elasticsearch.yml dest=/etc/elasticsearch/
 
+- name: generate password secret
+  command: pwgen -N 1 -s 96
+  register: machinepass
+
 - name: set graylog config
   template: src=server.conf dest=/etc/graylog/server/server.conf
 
 - name: enable and start services 
-  service: name={{item}} state=started enabled=yes
-    with_items:
-      - elasticsearch
-      - graylog-server
+  service: name="{{item}}" state=started enabled=yes
+  with_items:
+    - elasticsearch
+    - graylog-server

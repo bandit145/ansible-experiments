@@ -1,0 +1,13 @@
+---
+- name: setup graylog standlone server
+  hosts: all
+  remote_user: server
+  become: yes
+  vars:
+    host_name: "{{name}}"
+    subscription1: ALL
+    subscription2: logging
+
+  roles:
+    - common
+    - graylog-selfnode

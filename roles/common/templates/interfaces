@@ -8,8 +8,8 @@ auto lo
 iface lo inet loopback
 
 # The primary network interface
-auto ens160
-iface ens160 inet static
+auto eth0
+iface eth0 inet static
 	address "{{ansible_default_ipv4['address']}}"
 	netmask "{{ansible_default_ipv4['netmask']}}"
 	gateway "{{ansible_default_ipv4['gateway']}}"

@@ -32,10 +32,17 @@
   with_items:
     - sensu-cert.pem
     - sensu-key.pem
+
+- name: copy rsyslog config
+  copy: src=rsyslog.conf dest=/etc/
+- name: restart rsyslog
+  service: name=rsyslog state=restarted
+  
 - name: start sensu
   service: name=sensu-client state=started enabled=yes
 
 - name: copy interfaces template
-  copy: src=interfaces dest=/etc/network/interfaces
+  template: src=interfaces dest=/etc/network/interfaces
 
-#Eventually restart networking, probably from deploy script
+- name: restart networking
+  service: name=networking state=restarted
