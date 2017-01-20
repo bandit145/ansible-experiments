@@ -1,4 +1,7 @@
 ---
+- name: copy ruby service-check
+  copy: src=/home/phil/files/sensu-checks/service-check.rb dest=/etc/sensu/plugins/jenkins-check.rb
+
 - name:  run jenkins repo setup script
   script: jenkins.sh
 

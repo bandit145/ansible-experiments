@@ -6,6 +6,8 @@
   vars:
     host_name: "{{ name }}"
     subscription1: ALL
+    subscription2: jenkins server
+    subscription3: linux
 
   roles:
     - common

@@ -1,45 +1,78 @@
 ---
+
+- name: add jessie backports aptrepository
+  apt_repository: repo='deb http://ftp.us.debian.org/debian jessie-backports main ' state=present
+
 - name: Install python and git
   apt: name={{ item }} update_cache=yes
   with_items:
   - python3-dev
   - python3-pip
   - git
+  - ruby
+
+- name: install sensu-plugin gem
+  command: gem install {{item}}
+  with_items:
+    - mixlib-cli
+    - sensu-plugin
+
 #dual copies otherwise conflicts
+
 - name: copy ssh auth key
-  copy: src=authorized_keys dest=/home/server/.ssh
+  copy: src=authorized_keys dest=/home/Administrator/.ssh/
 
 - name: copy sshd_config
   copy: src=sshd_config dest=/etc/ssh
 
 - name: name host
   hostname: name="{{host_name}}"
+  when: host_name != ""
 
 - name: install sensu
   apt: name=sensu update_cache=yes
 
 - name: copy the sensu configs
-  copy: src={{item}} dest=/etc/sensu/conf.d/
+  template: src={{item}} dest=/etc/sensu/conf.d/
   with_items:
-    - rabbitmq.json
-    - transport.json
+    - /home/phil/files/sensuclient/rabbitmq.json
+    - /home/phil/files/sensuclient/transport.json
 
 - name: copy sensu client template 
   template: src=client.json dest=/etc/sensu/conf.d
+  when: host_name != ""
 
 - name: copy ssl certs
   copy: src={{item}} dest=/etc/sensu/ssl/
   with_items:
-    - sensu-cert.pem
-    - sensu-key.pem
+  - /home/phil/files/sensuclient/cert.pem
+  - /home/phil/files/sensuclient/key.pem
+
+- name: copy common sensu checks
+  copy: src={{ item }} dest=/etc/sensu/plugins/ mode="a+x"
+  with_items:
+    - /home/phil/files/sensu-checks/cpu-check.rb
+    - /home/phil/files/sensu-checks/ram-check.rb
+    - /home/phil/files/sensu-checks/diskspace-check.rb
+
+- name: copy standalone sensu check defs
+  copy: src={{item}} dest=/etc/sensu/conf.d/
+  with_items:
+    - /home/phil/files/sensu-defs/cpu-check.json
+    - /home/phil/files/sensu-defs/ram-check.json
+    - /home/phil/files/sensu-defs/diskspace-check.json
 
 - name: copy rsyslog config
   copy: src=rsyslog.conf dest=/etc/
+
 - name: restart rsyslog
   service: name=rsyslog state=restarted
   
 - name: start sensu
-  service: name=sensu-client state=started enabled=yes
+  service: name=sensu-client state=restarted
+
+- name: enable sensu
+  command: systemctl enable sensu-client 
 
 - name: copy interfaces template
   template: src=interfaces dest=/etc/network/interfaces

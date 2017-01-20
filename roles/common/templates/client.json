@@ -2,6 +2,6 @@
   "client": {
     "name": "{{host_name}}",
     "address": "{{ansible_default_ipv4['address']}}",
-    "subscriptions": [ "{{subscription1}}", "{{subscription2 | default('NONE')}}"]
+    "subscriptions": [ "{{subscription1}}", "{{subscription2 | default('NONE')}}","{{subscription3}}"]
   }
 }
