@@ -1,0 +1,15 @@
+---
+- name: join to be dc to domain
+  hosts: all
+  remote_user: "{{remote_user | Administrator}}"
+  vars:
+    host_name: "{{name}}"
+    winadmin: "{{winadmin}}"
+    password: "{{password}}"
+    subscription1: ALL
+    subscription2: Domain Controllers
+
+  roles:
+    - windows_common
+    - install_adds
+    - join_domain

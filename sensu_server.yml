@@ -1,0 +1,16 @@
+---
+- name: sensu server config
+  become: yes
+  hosts: all
+  remote_user: server
+  vars:
+    host_name: "{{name}}"
+    dash_pass: "{{dash_pass}}"
+    rabbit_pass: "{{rabbit_pass}}"
+    subscription1: ALL
+    subscription2: sensu monitoring
+    subscription3: linux
+
+  roles:
+    - common
+    - sensu

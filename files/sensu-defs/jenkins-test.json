@@ -1,0 +1,10 @@
+{
+	"checks":{
+		"jenkins-check":{
+			"command": "jenkins-check.rb -s jenkins",
+			"subscribers": ["linux"],
+			"standalone": true,
+			"interval": 60
+		}
+	}
+}

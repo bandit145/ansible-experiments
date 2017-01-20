@@ -1,0 +1,59 @@
+---
+- name: create app user
+  user: name=ans-between state=present group=ans-between
+- name: install pip2, krb5
+  apt: name:{{item}} update_cache:yes
+  with_items:
+    - libkrb5-dev
+    - krb5-user
+    - python-dev
+    - python-pip
+    - python3-dev
+    - python3-pip
+    - git
+
+- name: install ansible and pip kerberos
+  pip: name={{item}} state=present executable=pip2
+  with_items:
+    - ansible
+    - kerberos
+    - requests_kerberos
+
+- name: grab ans-between
+  git: repo=https://github.com/bandit145/ans-between.git dest=/home/ans-between/ans-between clone=yes
+
+- name: ans-between packages + celery through pip
+  pip: requirements=/home/ans-between/ans-between/requirements.txt executable=pip3
+
+- name: copy celeryd init script
+  template: src=celeryd dest=/etc/init.d/celeryd mode="a+x"
+
+- name: copy celryd init script config file
+  template: src=celeryd.conf  dest=/etc/default/celeryd  
+
+- name: copy ans-between init script
+  template: src=ans-between dest=/etc/init.d/ans-between mode="a+x"
+
+- name: set app.py to executable
+  file: path=/home/ans-between/ans-between/app.py mode="a+x" owner=ans-between
+
+- name: creat log location for ans-between
+  file: path=/var/log/ans-between/ state=directory owner=ans-between
+
+- name: give ans-between ownership of celery log location
+  file: path=/var/log/celery/ state=directory owner=ans-between 
+
+- name: create playbook directory
+  file: path=/home/ans-between/playbooks/ state=directory owner=ans-between
+
+- name: copy config.py for ans-between
+  copy: src=config.py dest=/home/server/ans-between/config.py-
+
+- name: copy krb5 config
+  copy: src=krb5.conf dest=/etc/krb5.conf
+
+- name: start celery service
+  service: name=celeryd state=started enabled=yes
+
+- name: start ans-between
+  service: name=ans=between state=started enabled=yes

@@ -1,0 +1,4 @@
+---
+- name: Join domain
+  script: joindomain.ps1 -user "{{winadmin}}" -userpass "{{password}}" -hostname "{{host_name}} -ou {{ou}}"
+  when: winadmin != ""

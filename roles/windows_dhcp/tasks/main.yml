@@ -1,0 +1,5 @@
+---
+- name: install dhcp roles
+  win_feature: 
+    name: "DHCP" 
+    state: present 

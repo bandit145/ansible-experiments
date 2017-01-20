@@ -1,0 +1,16 @@
+---
+- name: startup dhcp windows server
+  hosts: all
+  remote_user: Administrator
+  vars:
+    host_name: "{{name}}"
+    winadmin: "{{winadmin}}"
+    password: "{{password}}"
+    ou: ou=windows servers
+    subscription1: ALL
+    subscription2: windows
+    subscription3: dhcp
+  roles:
+    - windows_common
+    - windows_dhcp
+    - join_domain

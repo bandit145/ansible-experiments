@@ -1,0 +1,14 @@
+---
+- name: configure and provision an ansible-server
+  remote_user: server
+  hosts: all
+  become: yes
+  
+  vars:
+    hostname: "{{name}}"
+    auth: "{{appauth}}"
+    subscription1: ALL
+    subscription2: deployment
+  roles:
+    - common
+    - ansible

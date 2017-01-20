@@ -1,0 +1,98 @@
+---
+
+- name: install sensu and uchiwa and prereqs
+  apt: name={{ item }} state=present
+  with_items:
+    - uchiwa
+    - rabbitmq-server
+
+- name: install redis by "hand"
+  get_url: 
+    url: http://download.redis.io/redis-stable.tar.gz 
+    dest: /home/server
+  when: host_name != ""
+
+- name: extract redis and delete tar.gz
+  command: tar -xzvf /home/server/redis-stable.tar.gz 
+  when: host_name != ""
+
+- name: delete archive
+  command: rm -r /home/server/redis-stable.tar.gz
+  when: host_name != ""
+
+- name:  make redis
+  make: chdir=/home/server/redis-stable/
+  when: host_name != ""
+
+- name: make install
+  command: make install chdir=/home/server/redis-stable
+  when: host_name != ""
+
+- name: remove redis-stable
+  command: rm -r /home/server/redis-stable
+  when: host_name != ""
+
+- name: add redis group
+  group: name=redis state=present
+
+- name: add redis user
+  user: name=redis state=present group=redis
+
+- name: configure redis dir
+  file: path=/var/lib/redis state=directory owner=redis group=redis mode=770
+
+- name: copy redis conf
+  copy: src=redis.conf dest=/etc/redis/
+
+- name: copy redis systemd unit
+  copy: src=redis-server.service dest=/etc/systemd/system/
+
+- name: create log file for redis
+  file: path=/var/log/redis/redis.log owner=redis group=redis
+
+- name: daemon reload
+  command: systemctl daemon-reload
+
+- name : copy uchiwa config
+  template: src=uchiwa.json dest=/etc/sensu/
+
+- name: copy sensu configs
+  copy: src={{item}} dest=/etc/sensu/conf.d/
+  with_items:
+    - api.json
+    - redis.json
+
+- name: copy rabbitmq config
+  copy: src=rabbitmq.config dest=/etc/rabbitmq/
+
+- name: copy dc.local for redis
+  copy: src=rc.local dest=/etc/rc.local
+
+- name: start and enable services
+  service: name={{item}} state=restarted enabled=yes
+  with_items:
+    - rabbitmq-server
+    - redis-server
+    - uchiwa
+    - sensu-api
+    - sensu-server
+
+- name: actually enable sensu and redis
+  command: systemctl enable {{item}}
+  with_items:
+    - redis-server
+    - uchiwa
+    - sensu-api
+    - sensu-server
+
+- name: create /sensu rabbitmq vhost
+  rabbitmq_vhost: name=/sensu state=present
+
+- name: add sensu rabbtimq user
+  rabbitmq_user: user=sensu password="{{rabbit_pass}}" vhost=/sensu configure_priv=.* read_priv=.* write_priv=.* state=present 
+
+- name: reboot for rc.local to take effect
+  command: reboot
+  async: 0
+  poll: 0
+  ignore_errors: true

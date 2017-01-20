@@ -1,0 +1,10 @@
+{
+	"checks":{
+		"cpu-check":{
+			"command": "ruby C:/opt/sensu/plugins/ram-check.rb",
+			"subscribers": ["windows","Domain Controllers"],
+			"standalone": true,
+			"interval": 60
+		}
+	}
+}

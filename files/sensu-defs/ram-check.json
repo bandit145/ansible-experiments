@@ -1,0 +1,10 @@
+{
+	"checks":{
+		"ram-check":{
+			"command": "ram-check.rb",
+			"subscribers": ["linux"],
+			"standalone": true,
+			"interval": 60
+		}
+	}
+}

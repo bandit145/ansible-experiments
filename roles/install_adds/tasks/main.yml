@@ -1,0 +1,37 @@
+---
+- name: make pending-request file and requests file 
+  win_file: path={{item}} state=directory
+  with_items:
+    - C:\pending-request\
+    - C:\requests\
+
+
+- name: set permissions for folders
+  win_acl: 
+    path: C:\pending-request\
+    user: MEME\Domain Admins 
+    rights: FullControl 
+    type: allow 
+    state: present 
+    propagation: InheritOnly
+  
+
+- name: smb script
+  script: smb_share.ps1 -ShareName "pending-request" -Path "C:\pending-request"
+
+- name: copy dcrequest.inf
+  win_copy: src=dcrequest.inf dest=C:/requests/
+
+- name: copy nxlog config
+  win_copy: src=nxlog.conf dest="C:/Program Files (x86)/nxlog/conf/"
+
+- name: install adds and dns
+  win_feature:
+    name: "{{item}}"
+    include_management_tools: True
+    include_sub_features: True
+    state: present
+
+  with_items:
+    - "AD-Domain-Services"
+    - "DNS"

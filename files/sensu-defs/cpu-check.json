@@ -1,0 +1,10 @@
+{
+	"checks":{
+		"cpu-check":{
+			"command": "cpu-check.rb",
+			"subscribers": ["linux"],
+			"standalone": true,
+			"interval": 60
+		}
+	}
+}

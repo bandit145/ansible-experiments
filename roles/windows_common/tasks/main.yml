@@ -1,0 +1,75 @@
+---
+- name: install chocolatey
+  script: chocoinst.ps1
+- name: create gems folder
+  win_file: path=C:/gems/ state=directory
+
+- name: copy local ruby gems
+  win_copy: src={{item}} dest=C:/gems/
+  with_items:
+    - sensu-plugin-1.4.4.gem
+    - mixlib-cli-1.7.0.gem 
+
+- name: install ruby and ruby devkit
+  win_chocolatey: 
+    name: "{{item}}"
+    state: present
+  with_items:
+    - ruby
+    - ruby2.devkit
+
+- name: install ruby gems
+  script: geminst.ps1
+
+- name: start service
+  win_service:
+    name: nxlog
+    state: started
+    start_mode: auto
+
+- name: create ssl section and conf.d
+  win_file: path={{item}} state=directory
+  with_items:
+    - C:/opt/sensu/ssl
+    - C:/opt/sensu/conf.d
+    - C:/opt/sensu/plugins
+
+- name: copy sensu checks
+  win_copy: src={{item}} dest=C:/opt/sensu/plugins/
+  with_items:
+    - /home/phil/files/sensu-checks/cpu-check.rb
+    - /home/phil/files/sensu-checks/ram-check.rb
+
+- name: copy windows sensu check defs
+  win_copy: src={{item}} dest=C:/opt/sensu/conf.d/
+  with_items:
+    - /home/phil/files/sensu-defs/win-cpu-check.json
+    - /home/phil/files/sensu-defs/win-ram-check.json
+
+- name: copy client config
+  win_template: src=client.json dest=C:/opt/sensu/conf.d/
+  when: host_name != ""
+
+- name: copy rabbitmq-windows
+  win_copy: src=/home/phil/files/sensuclient/rabbitmq-windows.json dest=C:/opt/sensu/conf.d/rabbitmq.json
+
+- name: copy rest of configs
+  win_copy: src=/home/phil/files/sensuclient/transport.json dest=C:/opt/sensu/conf.d/
+
+- name: copy certs
+  win_copy: src={{item}} dest=C:/opt/sensu/ssl/
+  with_items:
+    - /home/phil/files/sensuclient/cert.pem
+    - /home/phil/files/sensuclient/key.pem
+- name: copy sensu-client.xml 
+  win_copy: src=sensu-client.xml dest=C:/opt/sensu/bin/
+
+#- name: copy ad modules
+#  win_copy: src=/ActiveDirectory dest=C:\Windows\System32\WindowsPowerShell\v1.0\Modules\
+
+#staticip also creates sensu service and starts it
+- name: start service
+  script: service.ps1
+
+- name: cleanup gem folder
+  win_file: path=C:/gems/ state=absent

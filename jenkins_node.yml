@@ -1,0 +1,25 @@
+#deploys basic server
+- name: deploy
+  hosts: all
+  remote_user: server
+  become: yes
+  vars:
+    host_name: "{{ name }}"
+    subscription1: ALL
+    subscription2: jenkins nodes
+    subscription3: linux
+
+  roles:
+    - common 
+
+  post_tasks:
+    - name: copy authorized_keys for jenkins worker access
+      copy: src=files/jenkins_authorized_keys dest=/home/server/.ssh/authorized_keys
+
+    - name: restart ssh service
+      service: name=sshd state=restarted
+    - name: install jdk
+      apt: name=openjdk-7-jdk state=present
+
+    - name: install virtualenv for python packages
+      pip: name=virtualenv state=present executable=pip3
