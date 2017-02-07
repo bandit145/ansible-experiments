@@ -1,0 +1,16 @@
+---
+- name: startup basic windows scheduling server
+  hosts: all
+  remote_user: "{{remote_user}}"
+  vars:
+    host_name: "{{name}}"
+    winadmin: "{{winadmin}}"
+    password: "{{password}}"
+    ou: windows servers
+    subscription1: ALL
+    subscription2: windows
+    subscription3: task
+  roles:
+    - windows_common
+    - scheduled_windows
+    - join_domain

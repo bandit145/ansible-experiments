@@ -19,7 +19,7 @@
     - ruby2.devkit
 
 - name: install ruby gems
-  script: geminst.ps1
+  win_command: gem install --local C:/gems/mixlib-cli-1.7.0.gem C:/gems/sensu-plugin-1.4.4.gem
 
 - name: start service
   win_service:
@@ -73,3 +73,16 @@
 
 - name: cleanup gem folder
   win_file: path=C:/gems/ state=absent
+- name: set static ip
+  script: stat_ip.ps1 -ipaddress "{{ansible_ip_addresses[0]}}" -defaultgatweway 192.168.1.1
+
+- name: wait for host
+  local_action: wait_for host = {{ansible_ip_addresses[0]}} state=started delay=45 timeout=300
+  sudo: false
+
+- name: name computer
+  win_command: Rename-Computer -ComputerName "{{host_name}}" -Restart
+
+- name: wait for host to come back
+  local_action: wait_for host = {{ansible_ip_addresses[0]}} state=started delay=45 timeout=300
+  sudo: false

@@ -6,10 +6,10 @@
     host_name: "{{name}}"
     winadmin: "{{winadmin}}"
     password: "{{password}}"
+    primary_dns: 192.168.1.18
     subscription1: ALL
     subscription2: Domain Controllers
 
   roles:
     - windows_common
-    - install_adds
-    - join_domain
+    - domain_con

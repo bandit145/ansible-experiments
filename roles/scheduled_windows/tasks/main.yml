@@ -1,0 +1,11 @@
+---
+- name: copy powercli modules
+  win_copy: src=VMware-PowerCLI-6.5.0-4624819.exe dest=c:/
+
+- name: install powercli
+  win_command: C:/VMware-PowerCLI-6.5.0-4624819.exe /s /v/qn
+
+
+- name: cleanup installer
+  win_file: path=C:\VMware-PowerCLI-6.5.0-4624819.exe state=absent
+  
